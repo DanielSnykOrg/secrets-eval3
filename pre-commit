@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # API setup
-API_URL="https://api.entro.security/v1/scan"
+API_URL="https://api.entro.security/v2/scan?generic=false&redact=false'"
 TOKEN="$ent_ZaoD678UgGhQqyRiZLYZ9nLfTCmDN1KpzfMPPNBbUMWzvkJbIxZVuWU0relTVa7ajHF8yf/ju1MI2zvoD0/WA24LwU1OA8TTWDvZF4VNNW9xmfJvtwVieGA3yCPjccKbKtsWbYYpp4LvSSpDh1Es/wSRrMn+z2C1WCluIb33TEvfo+4NpRBkNA=="
 
 if [[ -z "$TOKEN" ]]; then
@@ -34,5 +34,3 @@ else
     echo "Commit allowed: No secrets detected."
     exit 0
 fi
-
-
