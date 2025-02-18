@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# API setup
+API_URL="https://your-scanner-api/v1/scan"
+TOKEN="$ent_ZaoD678UgGhQqyRiZLYZ9nLfTCmDN1KpzfMPPNBbUMWzvkJbIxZVuWU0relTVa7ajHF8yf/ju1MI2zvoD0/WA24LwU1OA8TTWDvZF4VNNW9xmfJvtwVieGA3yCPjccKbKtsWbYYpp4LvSSpDh1Es/wSRrMn+z2C1WCluIb33TEvfo+4NpRBkNA=="
+
+if [[ -z "$TOKEN" ]]; then
+    echo "Error: API token not set. Please export SCANNER_API_TOKEN."
+    exit 1
+fi
+
+# Collect staged changes
+COMMIT_DATA=$(git diff --cached)
+RAW_DATA=$(echo "$COMMIT_DATA" | grep -E '^[+-]' | grep -vE '^(---|\+\+\+|@@|new file mode| No newline at end of file)')
+DATA_JSON=$(jq -n --arg data "$RAW_DATA" '{"data": $data}')
+
+# Call the Scanner API
+RESPONSE=$(curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d "$DATA_JSON" \
+  "$API_URL")
+
+# Parse API response
+echo "API response:"
+echo "$RESPONSE" | jq
+
+SECRETS_COUNT=$(echo "$RESPONSE" | jq '.results.secrets | length // 0')
+if [[ "$SECRETS_COUNT" -gt 0 ]]; then
+    echo "Commit blocked: Detected $SECRETS_COUNT secret(s) in your changes."
+    exit 1
+else
+    echo "Commit allowed: No secrets detected."
+    exit 0
+fi
+
+
